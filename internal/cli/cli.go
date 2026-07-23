@@ -15,6 +15,12 @@ func Execute() {
 		return
 	}
 
+	switch os.Args[1] {
+	case "help", "-h", "--help":
+		help()
+		return
+	}
+
 	fmt.Println("Loading configuration...")
 	cfg, err := config.Load("config.yaml")
 	if err != nil {
@@ -43,6 +49,13 @@ func Execute() {
 		}
 
 		archiveFile := os.Args[2]
+		if archiveFile == "latest" {
+			archiveFile, err = backup.LatestArchive(cfg.Workspace.Path)
+			if err != nil {
+				fmt.Println("ERROR:", err)
+				os.Exit(1)
+			}
+		}
 
 		if err = storage.Upload(cfg, archiveFile); err != nil {
 			fmt.Println("ERROR:", err)
@@ -68,4 +81,5 @@ func help() {
 	fmt.Println("  saveup diag")
 	fmt.Println("  saveup backup")
 	fmt.Println("  saveup store [file] - use absolute path from backup's output")
+	fmt.Println("  # Use `saveup store latest` to store the latest version after running `saveup backup`")
 }

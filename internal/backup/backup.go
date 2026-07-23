@@ -6,8 +6,37 @@ import (
 	"path/filepath"
 	"saveup/internal/compression"
 	"saveup/internal/config"
+	"slices"
+	"strings"
 	"time"
 )
+
+func LatestArchive(workspace string) (string, error) {
+	entries, err := os.ReadDir(workspace)
+	if err != nil {
+		return "", err
+	}
+
+	var archives []string
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		if strings.HasSuffix(entry.Name(), ".zip") {
+			archives = append(archives, entry.Name())
+		}
+	}
+
+	if len(archives) == 0 {
+		return "", fmt.Errorf("no archive found")
+	}
+
+	slices.Sort(archives)
+
+	return filepath.Join(workspace, archives[len(archives)-1]), nil
+}
 
 func generateFileName(prefix, ext string) string {
 	return fmt.Sprintf(
