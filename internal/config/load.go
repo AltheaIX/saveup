@@ -21,5 +21,14 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("invalid config: %w", err)
 	}
 
+	switch cfg.Compression.Format {
+	case "zip":
+	default:
+		return nil, fmt.Errorf(
+			"unsupported compression format: %s\ncurrently supported compression are: zip",
+			cfg.Compression.Format,
+		)
+	}
+
 	return &cfg, nil
 }

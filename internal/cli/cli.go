@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"saveup/internal/backup"
 	"saveup/internal/diagnostic"
 )
 
@@ -19,7 +20,11 @@ func Execute() {
 			fmt.Println("ERROR:", err)
 			os.Exit(1)
 		}
-
+	case "backup":
+		if _, err := backup.Run(); err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(1)
+		}
 	default:
 		help()
 	}
@@ -30,4 +35,5 @@ func help() {
 	fmt.Println()
 	fmt.Println("Usage:")
 	fmt.Println("  saveup diag")
+	fmt.Println("  saveup backup")
 }
