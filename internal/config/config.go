@@ -23,7 +23,9 @@ type SaveConfig struct {
 }
 
 type BackupConfig struct {
-	Interval string `yaml:"interval"`
+	KeepLocal bool   `yaml:"keep_local"`
+	Prefix    string `yaml:"prefix"`
+	Interval  string `yaml:"interval"`
 }
 
 type CompressionConfig struct {

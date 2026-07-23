@@ -21,7 +21,7 @@ func Execute() {
 		fmt.Printf("Failed to load config: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("✓ Configuration loaded")
+	fmt.Println("✓ Validate config")
 	fmt.Println()
 
 	switch os.Args[1] {
@@ -37,9 +37,24 @@ func Execute() {
 			os.Exit(1)
 		}
 	case "store":
-		if err = storage.Upload(cfg, os.Args[2]); err != nil {
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: saveup store <archive>")
+			return
+		}
+
+		archiveFile := os.Args[2]
+
+		if err = storage.Upload(cfg, archiveFile); err != nil {
 			fmt.Println("ERROR:", err)
 			os.Exit(1)
+		}
+
+		if !cfg.Backup.KeepLocal {
+			err = os.Remove(archiveFile)
+			if err != nil {
+				fmt.Println("ERROR:", err)
+				os.Exit(1)
+			}
 		}
 	default:
 		help()
@@ -52,5 +67,5 @@ func help() {
 	fmt.Println("Usage:")
 	fmt.Println("  saveup diag")
 	fmt.Println("  saveup backup")
-	fmt.Println("  saveup store")
+	fmt.Println("  saveup store [file] - use absolute path from backup's output")
 }

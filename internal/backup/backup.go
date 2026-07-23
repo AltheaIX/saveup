@@ -25,7 +25,7 @@ func Run(cfg *config.Config) (string, error) {
 
 	archivePath := filepath.Join(
 		cfg.Workspace.Path,
-		generateFileName("palworld", "zip"),
+		generateFileName(cfg.Backup.Prefix, "zip"),
 	)
 
 	sourcePath := filepath.Join(cfg.Save.Path)
