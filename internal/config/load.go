@@ -8,7 +8,6 @@ import (
 )
 
 func Load(path string) (*Config, error) {
-
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err

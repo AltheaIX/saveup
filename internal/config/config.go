@@ -9,6 +9,8 @@ type Config struct {
 
 	Compression CompressionConfig `yaml:"compression"`
 
+	Storage StorageConfig `yaml:"storage"`
+
 	R2 R2Config `yaml:"r2"`
 }
 
@@ -26,6 +28,10 @@ type BackupConfig struct {
 
 type CompressionConfig struct {
 	Format string `yaml:"format"`
+}
+
+type StorageConfig struct {
+	Provider string `yaml:"provider"`
 }
 
 type R2Config struct {

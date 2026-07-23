@@ -3,20 +3,13 @@ package diagnostic
 import (
 	"fmt"
 	"os"
+	"saveup/internal/storage"
 
 	"saveup/internal/config"
 )
 
-func Run() error {
-
-	cfg, err := config.Load("config.yaml")
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("✓ config.yaml parsed")
-
-	_, err = os.Stat(cfg.Save.Path)
+func Run(cfg *config.Config) error {
+	_, err := os.Stat(cfg.Save.Path)
 	if err != nil {
 		return fmt.Errorf("save directory not found: %s", cfg.Save.Path)
 	}
@@ -24,6 +17,13 @@ func Run() error {
 	fmt.Println("✓ save directory exists")
 
 	fmt.Println()
+
+	if err = storage.Check(cfg); err != nil {
+		return err
+	}
+	fmt.Println("✓ R2 connection")
+	fmt.Println()
+
 	fmt.Println("PASS")
 
 	return nil

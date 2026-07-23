@@ -18,16 +18,8 @@ func generateFileName(prefix, ext string) string {
 	)
 }
 
-func Run() (string, error) {
-	fmt.Println("Loading configuration...")
-	cfg, err := config.Load("config.yaml")
-	if err != nil {
-		return "", err
-	}
-	fmt.Println("✓ Configuration loaded")
-	fmt.Println()
-
-	if err = os.MkdirAll(cfg.Workspace.Path, 0755); err != nil {
+func Run(cfg *config.Config) (string, error) {
+	if err := os.MkdirAll(cfg.Workspace.Path, 0755); err != nil {
 		return "", fmt.Errorf("failed to create workspace: %w", err)
 	}
 
@@ -43,7 +35,7 @@ func Run() (string, error) {
 	fmt.Println("Output: ", archivePath)
 	fmt.Println()
 
-	err = compression.Zip(sourcePath, archivePath)
+	err := compression.Zip(sourcePath, archivePath)
 	if err != nil {
 		return "", fmt.Errorf("failed to compress save directory: %w", err)
 	}
