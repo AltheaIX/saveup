@@ -16,8 +16,8 @@ func NewR2Client(cfg *config.Config) (*s3.Client, error) {
 		context.TODO(),
 		awsconfig.WithCredentialsProvider(
 			credentials.NewStaticCredentialsProvider(
-				cfg.R2.AccessKey,
-				cfg.R2.SecretKey,
+				cfg.S3.AccessKey,
+				cfg.S3.SecretKey,
 				"",
 			),
 		),
@@ -30,7 +30,7 @@ func NewR2Client(cfg *config.Config) (*s3.Client, error) {
 
 	client := s3.NewFromConfig(
 		awscfg, func(o *s3.Options) {
-			o.BaseEndpoint = aws.String(cfg.R2.Endpoint)
+			o.BaseEndpoint = aws.String(cfg.S3.Endpoint)
 		},
 	)
 

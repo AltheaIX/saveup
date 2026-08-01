@@ -14,7 +14,7 @@ compression:
 storage:
   provider: r2 # r2
 
-r2:
+s3:
   endpoint: ""
   bucket: ""
   access_key: ""

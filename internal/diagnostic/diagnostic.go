@@ -21,7 +21,7 @@ func Run(cfg *config.Config) error {
 	if err = storage.Check(cfg); err != nil {
 		return err
 	}
-	fmt.Println("✓ Validate R2 connection")
+	fmt.Println("✓ Validate S3 connection")
 	fmt.Println()
 
 	fmt.Println("PASS")

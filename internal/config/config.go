@@ -11,7 +11,7 @@ type Config struct {
 
 	Storage StorageConfig `yaml:"storage"`
 
-	R2 R2Config `yaml:"r2"`
+	S3 S3Config `yaml:"s3"`
 }
 
 type WorkspaceConfig struct {
@@ -36,7 +36,7 @@ type StorageConfig struct {
 	Provider string `yaml:"provider"`
 }
 
-type R2Config struct {
+type S3Config struct {
 	Endpoint  string `yaml:"endpoint"`
 	Bucket    string `yaml:"bucket"`
 	AccessKey string `yaml:"access_key"`

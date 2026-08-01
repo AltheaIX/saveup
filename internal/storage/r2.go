@@ -21,7 +21,7 @@ func Upload(cfg *config.Config, archivePath string) error {
 	key := filepath.Base(archivePath)
 
 	fmt.Println("Uploading...")
-	fmt.Println("Bucket :", cfg.R2.Bucket)
+	fmt.Println("Bucket :", cfg.S3.Bucket)
 	fmt.Println("Object :", key)
 
 	client, err := NewR2Client(cfg)
@@ -31,7 +31,7 @@ func Upload(cfg *config.Config, archivePath string) error {
 
 	_, err = client.PutObject(
 		context.Background(), &s3.PutObjectInput{
-			Bucket: aws.String(cfg.R2.Bucket),
+			Bucket: aws.String(cfg.S3.Bucket),
 			Key:    aws.String(key),
 			Body:   file,
 		},
@@ -53,7 +53,7 @@ func Check(cfg *config.Config) error {
 	_, err = client.HeadBucket(
 		context.Background(),
 		&s3.HeadBucketInput{
-			Bucket: aws.String(cfg.R2.Bucket),
+			Bucket: aws.String(cfg.S3.Bucket),
 		},
 	)
 
