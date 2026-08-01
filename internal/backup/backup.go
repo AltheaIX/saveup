@@ -47,6 +47,14 @@ func generateFileName(prefix, ext string) string {
 	)
 }
 
+func DeleteFile(archiveFile string) error {
+	err := os.Remove(archiveFile)
+	if err != nil {
+		return fmt.Errorf("deleting uploaded file: %w\n", err)
+	}
+	return nil
+}
+
 func Run(cfg *config.Config) (string, error) {
 	if err := os.MkdirAll(cfg.Workspace.Path, 0755); err != nil {
 		return "", fmt.Errorf("failed to create workspace: %w", err)

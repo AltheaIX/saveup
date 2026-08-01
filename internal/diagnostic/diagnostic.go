@@ -1,6 +1,7 @@
 package diagnostic
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"saveup/internal/storage"
@@ -8,7 +9,7 @@ import (
 	"saveup/internal/config"
 )
 
-func Run(cfg *config.Config) error {
+func Run(ctx context.Context, cfg *config.Config) error {
 	_, err := os.Stat(cfg.Save.Path)
 	if err != nil {
 		return fmt.Errorf("save directory not found: %s", cfg.Save.Path)
@@ -18,7 +19,7 @@ func Run(cfg *config.Config) error {
 
 	fmt.Println()
 
-	if err = storage.Check(cfg); err != nil {
+	if err = storage.Check(ctx, cfg); err != nil {
 		return err
 	}
 	fmt.Println("✓ Validate S3 connection")
