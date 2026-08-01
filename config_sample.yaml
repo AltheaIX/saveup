@@ -1,6 +1,7 @@
 backup:
   keep_local: true # keep the file on workspace folder after upload to storage provider (saveup store)
   prefix: "palworld" # prefix for the backup file, eg: palworld-date-time.zip
+  interval: 3h # interval for each backup
 
 workspace:
   path: "" # use absolute path, eg: "/home/ubuntu/saveup_workspace"

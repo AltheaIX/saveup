@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func Upload(cfg *config.Config, archivePath string) error {
+func Upload(ctx context.Context, cfg *config.Config, archivePath string) error {
 	file, err := os.Open(archivePath)
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)
@@ -30,7 +30,7 @@ func Upload(cfg *config.Config, archivePath string) error {
 	}
 
 	_, err = client.PutObject(
-		context.Background(), &s3.PutObjectInput{
+		ctx, &s3.PutObjectInput{
 			Bucket: aws.String(cfg.S3.Bucket),
 			Key:    aws.String(key),
 			Body:   file,
@@ -44,14 +44,14 @@ func Upload(cfg *config.Config, archivePath string) error {
 	return nil
 }
 
-func Check(cfg *config.Config) error {
+func Check(ctx context.Context, cfg *config.Config) error {
 	client, err := NewR2Client(cfg)
 	if err != nil {
 		return err
 	}
 
 	_, err = client.HeadBucket(
-		context.Background(),
+		ctx,
 		&s3.HeadBucketInput{
 			Bucket: aws.String(cfg.S3.Bucket),
 		},

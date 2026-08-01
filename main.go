@@ -1,7 +1,23 @@
 package main
 
-import "saveup/internal/cli"
+import (
+	"context"
+	"log"
+	"os"
+	"os/signal"
+	"saveup/internal/cli"
+	"syscall"
+)
 
 func main() {
-	cli.Execute()
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	if err := cli.Execute(ctx); err != nil {
+		log.Fatal(err)
+	}
 }
