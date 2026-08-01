@@ -5,7 +5,7 @@ Dead-simple backup utility for self-hosted servers.
 - ZIP backup
 - Cloudflare R2 upload
 - Configuration validation
-- Linux daemon support (planned)
+- Cross-platform daemon support (Windows / Linux)
 
 ## Installation
 Download files from [here.](https://github.com/AltheaIX/saveup/releases/latest) Then, configure the config.yaml with your R2 credentials.
@@ -20,12 +20,13 @@ Usage:
   saveup backup
   saveup store [file] - use absolute path from backup's output
   # Use `saveup store latest` to store the latest version after running `saveup backup`
+  saveup daemon - start daemon for auto-backup
 ```
 
 ## Roadmap
 - [x] ZIP backup
 - [x] Cloudflare R2 upload
-- [ ] Automatic daemon
-- [ ] Restore
+- [X] Automatic daemon
+- [ ] Retention Policy
 - [ ] Multiple compression formats
 - [ ] Support multiple workloads
