@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"saveup/internal/backup"
 	"saveup/internal/config"
+	"saveup/internal/retention"
 	"saveup/internal/storage"
 	"time"
 )
@@ -21,26 +22,39 @@ func Run(ctx context.Context, cfg *config.Config) error {
 	for {
 		select {
 		case <-ticker.C:
-			archivePath, err := backup.Run(cfg)
+			err = runAutoBackup(cfg)
 			if err != nil {
-				return fmt.Errorf("backup: %w", err)
+				return err
 			}
 
-			if err = runUpload(cfg, archivePath); err != nil {
-				return fmt.Errorf("upload: %w", err)
-			}
-
-			if !cfg.Backup.KeepLocal {
-				err = backup.DeleteFile(archivePath)
-				if err != nil {
-					return fmt.Errorf("deleting uploaded file: %w", err)
-				}
+			err = retention.Run(ctx, cfg)
+			if err != nil {
+				return err
 			}
 		case <-ctx.Done():
 			fmt.Println("Received shutdown signal")
 			return nil
 		}
 	}
+}
+
+func runAutoBackup(cfg *config.Config) error {
+	archivePath, err := backup.Run(cfg)
+	if err != nil {
+		return fmt.Errorf("backup: %w", err)
+	}
+
+	if err = runUpload(cfg, archivePath); err != nil {
+		return fmt.Errorf("upload: %w", err)
+	}
+
+	if !cfg.Backup.KeepLocal {
+		err = backup.DeleteFile(archivePath)
+		if err != nil {
+			return fmt.Errorf("deleting uploaded file: %w", err)
+		}
+	}
+	return nil
 }
 
 func runUpload(cfg *config.Config, archivePath string) error {
