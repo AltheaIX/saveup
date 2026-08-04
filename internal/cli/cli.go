@@ -43,6 +43,10 @@ func Execute(ctx context.Context) error {
 	case "store":
 		return runStore(ctx, cfg)
 	case "daemon":
+		if err = diagnostic.Run(ctx, cfg); err != nil {
+			return fmt.Errorf("run diagnostic: %w\n", err)
+		}
+
 		err = daemon.Run(ctx, cfg)
 		if err != nil {
 			return fmt.Errorf("running daemon: %w\n", err)
