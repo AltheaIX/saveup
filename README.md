@@ -27,6 +27,6 @@ Usage:
 - [x] ZIP backup
 - [x] Cloudflare R2 upload
 - [X] Automatic daemon
-- [ ] Retention Policy
+- [X] Retention Policy
 - [ ] Multiple compression formats
 - [ ] Support multiple workloads
