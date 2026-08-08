@@ -9,9 +9,22 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func NewR2Client(cfg *config.Config) (*s3.Client, error) {
+type S3ClientImpl struct {
+	cfg    *config.Config
+	client *s3.Client
+}
+
+type S3Client interface {
+	Upload(ctx context.Context, archivePath string) error
+	List(ctx context.Context) (*s3.ListObjectsV2Output, error)
+	BulkDelete(ctx context.Context, objects []types.ObjectIdentifier) error
+	Check(ctx context.Context) error
+}
+
+func NewS3Client(cfg *config.Config) (S3Client, error) {
 	awscfg, err := awsconfig.LoadDefaultConfig(
 		context.TODO(),
 		awsconfig.WithCredentialsProvider(
@@ -34,5 +47,8 @@ func NewR2Client(cfg *config.Config) (*s3.Client, error) {
 		},
 	)
 
-	return client, nil
+	return &S3ClientImpl{
+		cfg:    cfg,
+		client: client,
+	}, nil
 }
