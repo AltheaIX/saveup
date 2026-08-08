@@ -9,7 +9,12 @@ import (
 	"saveup/internal/config"
 )
 
-func Run(ctx context.Context, cfg *config.Config) error {
+type Diagnostic struct {
+	Client storage.S3Client
+	Cfg    *config.Config
+}
+
+func (d *Diagnostic) Run(ctx context.Context, cfg *config.Config) error {
 	_, err := os.Stat(cfg.Save.Path)
 	if err != nil {
 		return fmt.Errorf("save directory not found: %s", cfg.Save.Path)
@@ -19,7 +24,7 @@ func Run(ctx context.Context, cfg *config.Config) error {
 
 	fmt.Println()
 
-	if err = storage.Check(ctx, cfg); err != nil {
+	if err = d.Client.Check(ctx); err != nil {
 		return err
 	}
 	fmt.Println("✓ Validate S3 connection")

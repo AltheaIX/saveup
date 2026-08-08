@@ -10,8 +10,15 @@ import (
 	"time"
 )
 
-func Run(ctx context.Context, cfg *config.Config) error {
-	duration, err := time.ParseDuration(cfg.Backup.Interval)
+type Daemon struct {
+	Retention *retention.Retention
+
+	Cfg    *config.Config
+	Client storage.S3Client
+}
+
+func (d *Daemon) Run(ctx context.Context) error {
+	duration, err := time.ParseDuration(d.Cfg.Backup.Interval)
 	if err != nil {
 		return fmt.Errorf("parse duration: %w", err)
 	}
@@ -22,12 +29,12 @@ func Run(ctx context.Context, cfg *config.Config) error {
 	for {
 		select {
 		case <-ticker.C:
-			err = runAutoBackup(cfg)
+			err = d.runAutoBackup()
 			if err != nil {
 				return err
 			}
 
-			err = retention.Run(ctx, cfg)
+			err = d.Retention.Run(ctx)
 			if err != nil {
 				return err
 			}
@@ -38,17 +45,17 @@ func Run(ctx context.Context, cfg *config.Config) error {
 	}
 }
 
-func runAutoBackup(cfg *config.Config) error {
-	archivePath, err := backup.Run(cfg)
+func (d *Daemon) runAutoBackup() error {
+	archivePath, err := backup.Run(d.Cfg)
 	if err != nil {
 		return fmt.Errorf("backup: %w", err)
 	}
 
-	if err = runUpload(cfg, archivePath); err != nil {
+	if err = d.runUpload(archivePath); err != nil {
 		return fmt.Errorf("upload: %w", err)
 	}
 
-	if !cfg.Backup.KeepLocal {
+	if !d.Cfg.Backup.KeepLocal {
 		err = backup.DeleteFile(archivePath)
 		if err != nil {
 			return fmt.Errorf("deleting uploaded file: %w", err)
@@ -57,9 +64,9 @@ func runAutoBackup(cfg *config.Config) error {
 	return nil
 }
 
-func runUpload(cfg *config.Config, archivePath string) error {
+func (d *Daemon) runUpload(archivePath string) error {
 	// using uploadCtx to prevent backup getting canceled mid-way
 	uploadCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	return storage.Upload(uploadCtx, cfg, archivePath)
+	return d.Client.Upload(uploadCtx, archivePath)
 }

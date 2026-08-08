@@ -8,6 +8,7 @@ import (
 	"saveup/internal/config"
 	"saveup/internal/daemon"
 	"saveup/internal/diagnostic"
+	"saveup/internal/retention"
 	"saveup/internal/storage"
 )
 
@@ -29,11 +30,31 @@ func Execute(ctx context.Context) error {
 		return fmt.Errorf("load config: %w\n", err)
 	}
 	fmt.Println("✓ Validate config")
+
+	s3Client, err := storage.NewS3Client(cfg)
+	if err != nil {
+		return fmt.Errorf("create S3 client: %w\n", err)
+	}
 	fmt.Println()
+
+	diag := &diagnostic.Diagnostic{
+		Client: s3Client,
+		Cfg:    cfg,
+	}
+
+	ret := &retention.Retention{
+		Client: s3Client,
+	}
+
+	dae := &daemon.Daemon{
+		Retention: ret,
+		Cfg:       cfg,
+		Client:    s3Client,
+	}
 
 	switch os.Args[1] {
 	case "diag":
-		if err = diagnostic.Run(ctx, cfg); err != nil {
+		if err = diag.Run(ctx, cfg); err != nil {
 			return fmt.Errorf("run diagnostic: %w\n", err)
 		}
 	case "backup":
@@ -41,13 +62,13 @@ func Execute(ctx context.Context) error {
 			return fmt.Errorf("run backup: %w\n", err)
 		}
 	case "store":
-		return runStore(ctx, cfg)
+		return runStore(ctx, s3Client, cfg)
 	case "daemon":
-		if err = diagnostic.Run(ctx, cfg); err != nil {
+		if err = diag.Run(ctx, cfg); err != nil {
 			return fmt.Errorf("run diagnostic: %w\n", err)
 		}
 
-		err = daemon.Run(ctx, cfg)
+		err = dae.Run(ctx)
 		if err != nil {
 			return fmt.Errorf("running daemon: %w\n", err)
 		}
@@ -58,7 +79,7 @@ func Execute(ctx context.Context) error {
 	return nil
 }
 
-func runStore(ctx context.Context, cfg *config.Config) (err error) {
+func runStore(ctx context.Context, client storage.S3Client, cfg *config.Config) (err error) {
 	if len(os.Args) < 3 {
 		fmt.Println("Usage: saveup store <archive>")
 		return nil
@@ -72,7 +93,7 @@ func runStore(ctx context.Context, cfg *config.Config) (err error) {
 		}
 	}
 
-	if err = storage.Upload(ctx, cfg, archiveFile); err != nil {
+	if err = client.Upload(ctx, archiveFile); err != nil {
 		return fmt.Errorf("running upload: %w\n", err)
 	}
 

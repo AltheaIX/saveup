@@ -3,7 +3,6 @@ package retention
 import (
 	"context"
 	"fmt"
-	"saveup/internal/config"
 	"saveup/internal/storage"
 	"time"
 
@@ -11,8 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func Run(ctx context.Context, cfg *config.Config) error {
-	result, err := storage.List(ctx, cfg)
+type Retention struct {
+	Client storage.S3Client
+}
+
+func (r *Retention) Run(ctx context.Context) error {
+	result, err := r.Client.List(ctx)
 	if err != nil {
 		return fmt.Errorf("list: %w", err)
 	}
@@ -41,7 +44,7 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		return nil
 	}
 
-	err = storage.BulkDelete(ctx, objectIdentifiers, cfg)
+	err = r.Client.BulkDelete(ctx, objectIdentifiers)
 	if err != nil {
 		return fmt.Errorf("bulk delete: %w", err)
 	}

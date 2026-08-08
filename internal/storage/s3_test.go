@@ -13,7 +13,12 @@ func TestUpload(t *testing.T) {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	err = Upload(context.Background(), cfg, "D:\\Palworld\\Workspace\\palworld-20260723-222347.zip")
+	client, err := NewS3Client(cfg)
+	if err != nil {
+		log.Fatalf("failed to create S3 client: %v", err)
+	}
+
+	err = client.Upload(context.Background(), "D:\\Palworld\\Workspace\\palworld-20260723-222347.zip")
 	if err != nil {
 		log.Fatal(err)
 	}
