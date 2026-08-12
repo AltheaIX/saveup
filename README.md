@@ -3,14 +3,14 @@ Dead-simple backup utility for self-hosted servers.
 
 ## Features
 - ZIP backup
-- Cloudflare R2 upload
+- Supports S3 compatible object storage
 - Configuration validation
 - Cross-platform daemon support (Windows / Linux)
 
 ## Installation
-Download files from [here.](https://github.com/AltheaIX/saveup/releases/latest) Then, configure the config.yaml with your R2 credentials.
+Download files from [here.](https://github.com/AltheaIX/saveup/releases/latest) Then, configure the config.yaml with your S3 credentials.
 
-Please use this reference to setting your R2 credentials.
+Please use this reference to setting your S3 credentials.
 [Click Here](https://developers.cloudflare.com/r2/get-started/s3/#2-generate-api-credentials)
 
 ## Usage
@@ -28,5 +28,6 @@ Usage:
 - [x] Cloudflare R2 upload
 - [X] Automatic daemon
 - [X] Retention Policy
+- [ ] Restore or Download File directly
 - [ ] Multiple compression formats
 - [ ] Support multiple workloads
