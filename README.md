@@ -28,7 +28,7 @@ Usage:
 - [x] Cloudflare R2 upload
 - [X] Automatic daemon
 - [X] Retention Policy
-- [ ] List backups
+- [X] List backups
 - [ ] Restore or Download File directly
 - [ ] Retry failed uploads
 - [ ] Multiple compression formats
