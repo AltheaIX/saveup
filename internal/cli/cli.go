@@ -8,6 +8,7 @@ import (
 	"saveup/internal/config"
 	"saveup/internal/daemon"
 	"saveup/internal/diagnostic"
+	"saveup/internal/list"
 	"saveup/internal/retention"
 	"saveup/internal/storage"
 )
@@ -52,11 +53,17 @@ func Execute(ctx context.Context) error {
 		Client:    s3Client,
 	}
 
+	listImpl := &list.List{
+		Client: s3Client,
+	}
+
 	switch os.Args[1] {
 	case "diag":
 		if err = diag.Run(ctx, cfg); err != nil {
 			return fmt.Errorf("run diagnostic: %w\n", err)
 		}
+	case "list":
+		return listImpl.Run(ctx)
 	case "backup":
 		if _, err = backup.Run(cfg); err != nil {
 			return fmt.Errorf("run backup: %w\n", err)
@@ -109,6 +116,7 @@ func help() {
 	fmt.Println()
 	fmt.Println("Usage:")
 	fmt.Println("  saveup diag")
+	fmt.Println("  saveup list")
 	fmt.Println("  saveup backup")
 	fmt.Println("  saveup store [file] - use absolute path from backup's output")
 	fmt.Println("  # Use `saveup store latest` to store the latest version after running `saveup backup`")
