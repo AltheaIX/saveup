@@ -4,14 +4,11 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"saveup/internal/backup"
 	"saveup/internal/config"
-	"saveup/internal/daemon"
-	"saveup/internal/diagnostic"
-	"saveup/internal/list"
-	"saveup/internal/retention"
 	"saveup/internal/storage"
 )
+
+type commandFunc func(ctx context.Context, cfg *config.Config, client storage.S3Client) error
 
 func Execute(ctx context.Context) error {
 	if len(os.Args) < 2 {
@@ -38,76 +35,20 @@ func Execute(ctx context.Context) error {
 	}
 	fmt.Println()
 
-	diag := &diagnostic.Diagnostic{
-		Client: s3Client,
-		Cfg:    cfg,
+	commands := map[string]commandFunc{
+		"diag":   runDiagnostic,
+		"list":   runList,
+		"backup": runBackup,
+		"store":  runStore,
+		"daemon": runDaemon,
 	}
 
-	ret := &retention.Retention{
-		Client: s3Client,
+	cmd := os.Args[1]
+	if fn, ok := commands[cmd]; ok {
+		return fn(ctx, cfg, s3Client)
 	}
 
-	dae := &daemon.Daemon{
-		Retention: ret,
-		Cfg:       cfg,
-		Client:    s3Client,
-	}
-
-	listImpl := &list.List{
-		Client: s3Client,
-	}
-
-	switch os.Args[1] {
-	case "diag":
-		if err = diag.Run(ctx, cfg); err != nil {
-			return fmt.Errorf("run diagnostic: %w\n", err)
-		}
-	case "list":
-		return listImpl.Run(ctx)
-	case "backup":
-		if _, err = backup.Run(cfg); err != nil {
-			return fmt.Errorf("run backup: %w\n", err)
-		}
-	case "store":
-		return runStore(ctx, s3Client, cfg)
-	case "daemon":
-		if err = diag.Run(ctx, cfg); err != nil {
-			return fmt.Errorf("run diagnostic: %w\n", err)
-		}
-
-		err = dae.Run(ctx)
-		if err != nil {
-			return fmt.Errorf("running daemon: %w\n", err)
-		}
-	default:
-		help()
-	}
-
-	return nil
-}
-
-func runStore(ctx context.Context, client storage.S3Client, cfg *config.Config) (err error) {
-	if len(os.Args) < 3 {
-		fmt.Println("Usage: saveup store <archive>")
-		return nil
-	}
-
-	archiveFile := os.Args[2]
-	if archiveFile == "latest" {
-		archiveFile, err = backup.LatestArchive(cfg.Workspace.Path)
-		if err != nil {
-			return fmt.Errorf("getting latest archive: %w\n", err)
-		}
-	}
-
-	if err = client.Upload(ctx, archiveFile); err != nil {
-		return fmt.Errorf("running upload: %w\n", err)
-	}
-
-	if !cfg.Backup.KeepLocal {
-		return backup.DeleteFile(archiveFile)
-	}
-
+	help()
 	return nil
 }
 
